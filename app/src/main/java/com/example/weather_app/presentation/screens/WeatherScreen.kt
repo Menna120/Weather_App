@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -22,7 +25,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -30,11 +32,10 @@ import com.example.weather_app.presentation.screens.components.PrecipitationsIte
 import com.example.weather_app.presentation.screens.components.TodayForecastCard
 import com.example.weather_app.presentation.screens.components.WeatherCard
 import com.example.weather_app.presentation.screens.components.WeekForecastCard
-import com.example.weather_app.theme.DarkBlue
-import com.example.weather_app.theme.DayColor
-import com.example.weather_app.theme.LightBlue
-import com.example.weather_app.theme.NightColor
-import com.example.weather_app.theme.Red
+import com.example.weather_app.presentation.screens.utils.DayTheme
+import com.example.weather_app.presentation.screens.utils.NightTheme
+import com.example.weather_app.presentation.screens.utils.SUNRISE_HOUR
+import com.example.weather_app.presentation.screens.utils.SUNSET_HOUR
 import com.example.weather_app.theme.White
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -45,13 +46,14 @@ import java.time.LocalTime
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun WeatherScreen(
+    modifier: Modifier = Modifier,
     weatherUiState: StateFlow<WeatherUiState>,
-    modifier: Modifier = Modifier
+    getWeatherInfo: () -> Unit,
 ) {
     val uiState = weatherUiState.collectAsStateWithLifecycle()
     val currentTime = LocalTime.now().hour
-    val (colorList, cardColor) = if (currentTime in 6..18) DayColor to LightBlue else NightColor to DarkBlue
-    val gradient = Brush.linearGradient(colors = colorList)
+    val appTheme = if (currentTime in SUNRISE_HOUR..SUNSET_HOUR) DayTheme else NightTheme
+    val gradient = Brush.linearGradient(colors = appTheme.backgroundGradient)
     val locationPermissions = rememberMultiplePermissionsState(
         permissions = listOf(
             Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -85,10 +87,24 @@ fun WeatherScreen(
 
             is WeatherUiState.Error -> {
                 item {
-                    Text(
-                        text = (uiState.value as WeatherUiState.Error).message,
-                        color = Red,
-                        textAlign = TextAlign.Center
+                    AlertDialog(
+                        onDismissRequest = {},
+                        title = { Text("Turn on Location") },
+                        text = {
+                            Text(
+                                "Location is needed to display weather information for your area," +
+                                        " please enable it, then try again"
+                            )
+                        },
+                        confirmButton = {
+                            Button(
+                                onClick = { getWeatherInfo() },
+                                colors = ButtonDefaults.buttonColors()
+                                    .copy(containerColor = appTheme.cardBackgroundColor)
+                            ) {
+                                Text("Reload")
+                            }
+                        }
                     )
                 }
             }
@@ -108,19 +124,19 @@ fun WeatherScreen(
                 item {
                     WeatherCard(
                         weatherMeasures = (uiState.value as WeatherUiState.Success).weatherMeasures,
-                        backgroundColor = cardColor
+                        backgroundColor = appTheme.cardBackgroundColor
                     )
                 }
                 item {
                     TodayForecastCard(
                         todayTemperatures = (uiState.value as WeatherUiState.Success).todayTemperatures,
-                        backgroundColor = cardColor
+                        backgroundColor = appTheme.cardBackgroundColor
                     )
                 }
                 item {
                     WeekForecastCard(
                         weekForecasts = (uiState.value as WeatherUiState.Success).weekForecast,
-                        backgroundColor = cardColor
+                        backgroundColor = appTheme.cardBackgroundColor
                     )
                 }
             }
@@ -132,5 +148,7 @@ fun WeatherScreen(
 @Preview(showBackground = true, showSystemUi = true, backgroundColor = 0xFF645E5E)
 @Composable
 private fun WeatherScreenPreview() {
-    WeatherScreen(weatherUiState = MutableStateFlow(generateFakeSuccessData()))
+    WeatherScreen(
+        weatherUiState = MutableStateFlow(generateFakeSuccessData())
+    ) {}
 }

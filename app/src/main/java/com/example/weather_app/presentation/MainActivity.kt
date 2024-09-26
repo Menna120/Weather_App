@@ -19,7 +19,8 @@ class MainActivity : ComponentActivity() {
             WeatherAppTheme {
                 val viewModel: WeatherViewModel = hiltViewModel()
                 WeatherScreen(
-                    weatherUiState = viewModel.uiState
+                    weatherUiState = viewModel.uiState,
+                    getWeatherInfo = viewModel::getWeatherInfo
                 )
             }
         }

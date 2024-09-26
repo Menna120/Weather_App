@@ -29,7 +29,7 @@ class WeatherViewModel @Inject constructor(
         viewModelScope, SharingStarted.WhileSubscribed(5_000L), WeatherUiState.Loading
     )
 
-    private fun getWeatherInfo() {
+    fun getWeatherInfo() {
         viewModelScope.launch {
             Log.i("WeatherApp", "Fetching weather info")
             _uiState.value = WeatherUiState.Loading
