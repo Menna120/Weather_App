@@ -40,3 +40,5 @@ Once the app is running, it will automatically access your location (make sure l
 ## Screenshots
 
 ![weather_screen_shot (Custom)](https://github.com/user-attachments/assets/93f1e33c-5486-4212-b854-567b63d65792)
+
+![Screenshot_20240926_191322 (Custom)](https://github.com/user-attachments/assets/c633915f-bfe3-4a96-9154-1b270ec6036d)
