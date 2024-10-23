@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Weather App</string>
+    <string name="clear">Clear</string>
+    <string name="location_permission_required">Location Permission Required</string>
+    <string name="location_permission_message">\nThis app needs location permissions to work properly. Please enable the location permission in settings.</string>
+    <string name="go_to_settings">Go to Settings</string>
 </resources>

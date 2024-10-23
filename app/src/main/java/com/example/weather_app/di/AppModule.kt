@@ -6,8 +6,10 @@ import com.example.weather_app.data.remote.WeatherApi
 import com.example.weather_app.data.repository.WeatherRepositoryImpl
 import com.example.weather_app.domain.location.LocationTracker
 import com.example.weather_app.domain.repository.WeatherRepository
+import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.CancellationTokenSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -39,6 +41,18 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideCurrentLocation(): CurrentLocationRequest {
+        return CurrentLocationRequest.Builder().build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCancellationTokenSource(): CancellationTokenSource {
+        return CancellationTokenSource()
+    }
+
+    @Provides
+    @Singleton
     fun providesFusedLocationProviderClient(
         application: Application
     ): FusedLocationProviderClient =
@@ -50,7 +64,9 @@ object AppModule {
         fusedLocationProviderClient: FusedLocationProviderClient,
         application: Application
     ): LocationTracker = DefaultLocationTracker(
-        fusedLocationProviderClient = fusedLocationProviderClient,
+        locationClient = fusedLocationProviderClient,
+        currentLocationRequest = provideCurrentLocation(),
+        cancellationTokenSource = provideCancellationTokenSource(),
         application = application
     )
 }
