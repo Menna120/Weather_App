@@ -47,24 +47,25 @@ class DefaultLocationTracker @Inject constructor(
         }
 
         return suspendCancellableCoroutine { cont ->
-            locationClient.getCurrentLocation(currentLocationRequest, cancellationTokenSource.token)
-                .apply {
-                    if (isComplete) {
-                        cont.resume(result)
-                        if (isSuccessful) cont.resume(result)
-                        else cont.resume(null)
-                        return@suspendCancellableCoroutine
-                    }
-                    addOnSuccessListener {
-                        cont.resume(it)
-                    }
-                    addOnFailureListener {
-                        cont.cancel(it.cause)
-                    }
-                    addOnCanceledListener {
-                        cont.cancel()
-                    }
+            locationClient.getCurrentLocation(
+                currentLocationRequest, cancellationTokenSource.token
+            ).apply {
+                if (isComplete) {
+                    cont.resume(result)
+                    if (isSuccessful) cont.resume(result)
+                    else cont.resume(null)
+                    return@suspendCancellableCoroutine
                 }
+                addOnSuccessListener {
+                    cont.resume(it)
+                }
+                addOnFailureListener {
+                    cont.cancel(it.cause)
+                }
+                addOnCanceledListener {
+                    cont.cancel()
+                }
+            }
         }
     }
 }
